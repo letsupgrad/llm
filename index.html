@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Code Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f4f4f4;
+    }
+    textarea, select {
+      width: 100%;
+      padding: 1rem;
+      margin-top: 1rem;
+      font-size: 1rem;
+    }
+    button {
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      margin-top: 1rem;
+      cursor: pointer;
+    }
+    pre {
+      background: #222;
+      color: #0f0;
+      padding: 1rem;
+      margin-top: 2rem;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Local Code Generator</h1>
+  <label for="model">Choose Model:</label>
+  <select id="model">
+    <option value="codellama/CodeLlama-7b-hf">CodeLlama</option>
+    <option value="bigcode/starcoder">StarCoder</option>
+  </select>
+
+  <label for="prompt">Enter your prompt:</label>
+  <textarea id="prompt" rows="6" placeholder="e.g., Write a Python function to reverse a string..."></textarea>
+
+  <button onclick="generateCode()">Generate Code</button>
+
+  <h3>Generated Code:</h3>
+  <pre id="output">...</pre>
+
+  <script>
+    async function generateCode() {
+      const prompt = document.getElementById("prompt").value;
+      const model = document.getElementById("model").value;
+      const output = document.getElementById("output");
+      output.textContent = "Generating...";
+
+      try {
+        const response = await fetch("http://localhost:5000/generate_code", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt, model })
+        });
+
+        const data = await response.json();
+        if (data.code) {
+          output.textContent = data.code;
+        } else {
+          output.textContent = "Error: " + (data.error || "Unknown error");
+        }
+      } catch (err) {
+        output.textContent = "Error connecting to server. Is your Flask app running?";
+      }
+    }
+  </script>
+</body>
+</html>
